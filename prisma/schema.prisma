@@ -50,8 +50,11 @@ model User {
   accounts      Account[]
   sessions      Session[]
   MovieLists    MovieList[]
-  ListComments  ListComments[]
+  ListComments  ListComment[]
   MovieComment  MovieComment[]
+  Votes         Votes[]
+  Reader        Reader[]
+  Editor        Editor[]
 }
 
 model VerificationToken {
@@ -63,17 +66,33 @@ model VerificationToken {
 }
 
 model MovieList {
-  id         String         @id @default(cuid())
-  createdAt  DateTime       @default(now())
-  lastEdited DateTime       @updatedAt
+  id         String        @id @default(cuid())
+  createdAt  DateTime      @default(now())
+  lastEdited DateTime      @updatedAt
   public     Boolean
-  movies     String[]
-  author     User           @relation(fields: [userId], references: [id])
-  // readers    User[] @relation(fields: [userId], references: [id])
-  // editors    User[]
-  comments   ListComments[]
+  author     User          @relation(fields: [userId], references: [id])
+  comments   ListComment[]
   userId     String
-  Movie      Movie[]
+  movies     Movie[]
+  votes      Votes[]
+  reader     Reader?       @relation(fields: [readerId], references: [id])
+  readerId   String?
+  Editor     Editor?       @relation(fields: [editorId], references: [id])
+  editorId   String?
+}
+
+model Reader {
+  id         String      @id @default(cuid())
+  movieLists MovieList[]
+  reader     User        @relation(fields: [userId], references: [id])
+  userId     String
+}
+
+model Editor {
+  id         String      @id @default(cuid())
+  movieLists MovieList[]
+  editor     User        @relation(fields: [userId], references: [id])
+  userId     String
 }
 
 model Movie {
@@ -85,25 +104,42 @@ model Movie {
   movieListId String
 }
 
-model ListComments {
+model ListComment {
   id          String    @id @default(cuid())
   createdAt   DateTime  @default(now())
   lastEdited  DateTime  @updatedAt()
-  comment     String
+  body        String
   author      User      @relation(fields: [userId], references: [id])
   movieList   MovieList @relation(fields: [movieListId], references: [id])
   userId      String
   movieListId String
+  Votes       Votes[]
 }
 
 model MovieComment {
   id         String   @id @default(cuid())
   createdAt  DateTime @default(now())
   lastEdited DateTime @updatedAt()
-  comment    String
+  body       String
   author     User     @relation(fields: [userId], references: [id])
   movie      Movie    @relation(fields: [movieId], references: [id])
 
   userId  String
   movieId String
+  Votes   Votes[]
+}
+
+model Votes {
+  id             String        @id @default(cuid())
+  upOrDown       Int           @db.SmallInt
+  user           User          @relation(fields: [userId], references: [id])
+  movieList      MovieList?    @relation(fields: [movieListId], references: [id])
+  listComment    ListComment?  @relation(fields: [listCommentsId], references: [id])
+  movieComment   MovieComment? @relation(fields: [movieCommentId], references: [id])
+  created        DateTime      @default(now())
+  updated        DateTime      @updatedAt
+  userId         String
+  movieListId    String
+  listCommentsId String
+  movieCommentId String
 }
