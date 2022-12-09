@@ -34,6 +34,6 @@ export const createContext = async (opts: CreateNextContextOptions) => {
   return await createContextInner({
     session,
   });
-};
+}
 
 export type Context = inferAsyncReturnType<typeof createContext>;

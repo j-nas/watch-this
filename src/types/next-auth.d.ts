@@ -6,7 +6,13 @@ declare module "next-auth" {
    */
   interface Session {
     user?: {
-      id: string;
+      id: string,
+      role: Role
     } & DefaultSession["user"];
   }
+}
+
+export enum Role {
+  admin = "ADMIN",
+  user = "USER"
 }
