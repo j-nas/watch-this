@@ -5,7 +5,7 @@ export const loginSchema = z.object({
   password: z.string().min(8),
 })
 
-export const signUpSchema = z.object({
+export const signUpSchema = loginSchema.extend({
   name: z.string().min(2),
 })
 
