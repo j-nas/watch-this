@@ -38,3 +38,4 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+/__internal_docs__

@@ -1,14 +1,23 @@
 import {
   router,
   publicProcedure,
-  protectedProcedure,
-  authedProcedure,
-  canEdit,
-  canRead
 } from "../trpc"
 import { z } from 'zod'
 import axios from 'axios'
-import { TRPCError } from "@trpc/server"
+
+const movieList = z.object({
+  page: z.number(),
+  results: z.array(z.object({
+    id: z.number(),
+    title: z.string(),
+    release_date: z.string(),
+    poster_path: z.string().nullish(),
+    vote_average: z.number(),
+    overview: z.string().nullish(),
+  })),
+  total_pages: z.number(),
+  total_results: z.number(),
+})
 
 export const movieDbRouter = router({
   getMovieInfo: publicProcedure
@@ -24,6 +33,7 @@ export const movieDbRouter = router({
     .input(z.object({
       page: z.number()
     }))
+    .output(movieList)
     .query(async ({ input }) => {
       const { data } = await axios.get(`https://api.themoviedb.org/3/movie/popular?api_key=${process.env.TMDB_API_KEY}&page=${input.page}`)
       return data
@@ -40,14 +50,17 @@ export const movieDbRouter = router({
     ),
   searchMovies: publicProcedure
     .input(z.object({
-      query: z.string(),
-      page: z.number()
+      page: z.number().min(1).nullish(),
+      query: z.string().nullish(),
     }))
-    .query(async ({ input }) => {
-      const { data } = await axios.get(`https://api.themoviedb.org/3/search/movie?api_key=${process.env.TMDB_API_KEY}&query=${input.query}&page=${input.page}`)
+    .output(movieList)
+    .mutation(async ({ input }) => {
+      const { query } = input
+      const { page } = input
+      const { data } = await axios.get(`https://api.themoviedb.org/3/search/movie?api_key=${process.env.TMDB_API_KEY}&query=${query}&page=${page}`)
       return data
     }
     ),
+
 })
 
-//list of the most handsome web developers

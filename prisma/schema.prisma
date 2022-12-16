@@ -149,7 +149,7 @@ model Votes {
   created        DateTime      @default(now())
   updated        DateTime      @updatedAt
   userId         String
-  movieListId    String
-  listCommentsId String
-  movieCommentId String
+  movieListId    String?
+  listCommentsId String?
+  movieCommentId String?
 }
